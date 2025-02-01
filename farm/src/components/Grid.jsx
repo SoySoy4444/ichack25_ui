@@ -1,7 +1,9 @@
 // src/components/Grid.js
 import React, { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Grid = () => {
+    const navigate = useNavigate();
     const rows = 30;
     const cols = 30;
     const cellSize = 30; 
@@ -16,6 +18,8 @@ const Grid = () => {
 
     // Convert 2D (row, col) to 1D index
     const getIndex = (row, col) => row * cols + col;
+
+    const goToResultPage = () => navigate("/result");
 
     // Handle cell click or drag
     const handleCellAction = (row, col) => {
@@ -157,74 +161,34 @@ const Grid = () => {
     }, [grid, handleMouseDown, handleMouseEnter]);
 
     return (
-        <div>
-            {/* Mode selection */}
-            <div style={{ marginBottom: "10px" }}>
-                <button
-                    onClick={() => setMode("crop")}
-                    style={{
-                        padding: "5px 10px",
-                        marginRight: "5px",
-                        backgroundColor: mode === "crop" ? "lightgreen" : "white",
-                        cursor: "pointer",
-                        border: "1px solid #ccc",
-                        borderRadius: "4px",
-                    }}
-                    aria-label="Crop Mode"
-                >
-                    Crop Mode
-                </button>
-                <button
-                    onClick={() => setMode("fence")}
-                    style={{
-                        padding: "5px 10px",
-                        marginRight: "5px",
-                        backgroundColor: mode === "fence" ? "lightcoral" : "white",
-                        cursor: "pointer",
-                        border: "1px solid #ccc",
-                        borderRadius: "4px",
-                    }}
-                    aria-label="Fence Mode"
-                >
-                    Fence Mode
-                </button>
-                <button
-                    onClick={() => setMode("delete")}
-                    style={{
-                        padding: "5px 10px",
-                        marginRight: "5px",
-                        backgroundColor: mode === "delete" ? "lightblue" : "white",
-                        cursor: "pointer",
-                        border: "1px solid #ccc",
-                        borderRadius: "4px",
-                    }}
-                    aria-label="Delete Mode"
-                >
-                    Delete Mode
-                </button>
-                <button
-                    onClick={resetGrid}
-                    style={{
-                        padding: "5px 10px",
-                        cursor: "pointer",
-                        border: "1px solid #ccc",
-                        borderRadius: "4px",
-                    }}
-                    aria-label="Reset Grid"
-                >
-                    Reset Grid
-                </button>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ marginBottom: "15px", display: "flex", gap: "10px" }}>
+                {["crop", "fence", "delete"].map((m) => (
+                    <button
+                        key={m}
+                        onClick={() => setMode(m)}
+                        style={{
+                            padding: "10px 15px",
+                            backgroundColor: mode === m ? "#555" : "#ddd",
+                            color: "white",
+                            cursor: "pointer",
+                            border: "none",
+                            borderRadius: "5px",
+                            transition: "0.3s",
+                        }}
+                    >
+                        {m.charAt(0).toUpperCase() + m.slice(1)} Mode
+                    </button>
+                ))}
+                <button onClick={resetGrid} style={{ padding: "10px 15px", backgroundColor: "red", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}>Reset</button>
+                <button onClick={goToResultPage} style={{ padding: "10px 15px", backgroundColor: "blue", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}>Go to Result</button>
             </div>
-
-            {/* Grid */}
             <div
                 style={{
                     display: "grid",
                     gridTemplateRows: `repeat(${rows}, ${cellSize}px)`,
                     gridTemplateColumns: `repeat(${cols}, ${cellSize}px)`,
-                    overflow: "auto",
-                    maxHeight: "80vh",
-                    maxWidth: "80vw",
+                    border: "2px solid black",
                 }}
                 onMouseUp={handleMouseUp}
             >
