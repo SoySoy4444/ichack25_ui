@@ -1,46 +1,37 @@
-// src/components/Grid.js
-import React, { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import Cell from "./Cell";
+import grassTile from "../assets/grass.png";
+import barnImage from "../assets/barn.png";
+import Menu from "./Menu";
 
-const Grid = () => {
-    const navigate = useNavigate();
-    const rows = 30;
-    const cols = 30;
-    const cellSize = 30; 
+const Grid = ({ rows = 30, cols = 30 }) => {
+    const cellSize = 30;
+    const borderSize = 1;
+    const gridWithBorder = rows + 2 * borderSize;
+    const colsWithBorder = cols + 2 * borderSize;
     const totalCells = rows * cols;
 
-    // State for grid, mode, and drag interaction
     const [grid, setGrid] = useState(Array(totalCells).fill(null));
     const [savedGrid, setSavedGrid] = useState(Array(totalCells).fill(null));
-    const [mode, setMode] = useState("crop"); // 'crop', 'fence', or 'delete'
+    const [mode, setMode] = useState("crop");
     const [isDragging, setIsDragging] = useState(false);
     const [startCell, setStartCell] = useState(null);
 
-    // Convert 2D (row, col) to 1D index
     const getIndex = (row, col) => row * cols + col;
 
-    const goToResultPage = () => navigate("/result");
-
-    // Handle cell click or drag
     const handleCellAction = (row, col) => {
         const index = getIndex(row, col);
-        const newGrid = [...grid];
-        if (mode === "delete") {
-            newGrid[index] = null; // Clear the cell
-        } else {
-            newGrid[index] = mode === "crop" ? "crop" : "fence"; // Set crop or fence
-        }
+        const newGrid = [...savedGrid];
+        newGrid[index] = mode === "delete" ? null : mode;
         setGrid(newGrid);
     };
 
-    // Handle mouse down (start dragging)
     const handleMouseDown = (row, col) => {
         setIsDragging(true);
         setStartCell({ row, col });
         handleCellAction(row, col);
     };
 
-    // Handle mouse enter (while dragging)
     const handleMouseEnter = (row, col) => {
         if (isDragging && startCell) {
             const minRow = Math.min(startCell.row, row);
@@ -51,148 +42,123 @@ const Grid = () => {
             const newGrid = [...savedGrid];
 
             if (mode === "fence") {
-                // Draw a fence line
                 if (maxRow - minRow < maxCol - minCol) {
                     for (let c = minCol; c <= maxCol; c++) {
-                        const index = getIndex(startCell.row, c);
-                        newGrid[index] = "fence";
+                        newGrid[getIndex(startCell.row, c)] = "fence";
                     }
                 } else {
                     for (let r = minRow; r <= maxRow; r++) {
-                        const index = getIndex(r, startCell.col);
-                        newGrid[index] = "fence";
+                        newGrid[getIndex(r, startCell.col)] = "fence";
                     }
                 }
             } else {
                 for (let r = minRow; r <= maxRow; r++) {
                     for (let c = minCol; c <= maxCol; c++) {
                         const index = getIndex(r, c);
-                        if (mode === "delete") {
-                            newGrid[index] = null; // Clear the cell
-                        } else {
-                            newGrid[index] = mode === "crop" ? "crop" : "fence"; // Set crop or fence
-                        }
+                        newGrid[index] = mode === "delete" ? null : mode;
                     }
                 }
             }
-
             setGrid(newGrid);
             if (mode === "delete") {
-                setSavedGrid(newGrid); // Save the current grid state
+                setSavedGrid(newGrid);
             }
         }
     };
 
-    // Handle mouse up (stop dragging)
     const handleMouseUp = () => {
         setIsDragging(false);
         setStartCell(null);
-        setSavedGrid([...grid]); // Save the current grid state
+        setSavedGrid(grid);
     };
 
-    const handleDoubleClick = (row, col) => {
-        if (mode !== "crop") {
-            return;
-        }
-
-        // Flood fill the crop area
-        const index = getIndex(row, col);
-        const newGrid = [...grid];
-        const visited = new Array(totalCells).fill(false);
-        const queue = [index];
-        while (queue.length > 0) {
-            console.log(queue);
-            const current = queue.shift();
-            const r = Math.floor(current / cols);
-            const c = current % cols;
-            if (r < 0 || r >= rows || c < 0 || c >= cols || newGrid[current] === "fence") {
-                continue;
-            }
-
-            newGrid[current] = "crop";
-            for (const dir of [-cols, cols, -1, 1]) {
-                const next = current + dir;
-                if (!visited[next]) {
-                    queue.push(next);
-                    visited[next] = true;
-                }
-            }
-
-            console.log(newGrid);
-        }
-
-        setGrid(newGrid);
-        setSavedGrid(newGrid);
-    }
-
-    // Reset the grid
     const resetGrid = () => {
-        const newGrid = Array(totalCells).fill(null);
-        setGrid(newGrid);
-        setSavedGrid(newGrid);
+        setGrid(Array(totalCells).fill(null));
     };
-
-    // Memoize the grid rendering for better performance
-    const renderedGrid = useMemo(() => {
-        return grid.map((cell, index) => {
-            const row = Math.floor(index / cols);
-            const col = index % cols;
-            return (
-                <div
-                    key={index}
-                    style={{
-                        backgroundColor:
-                            cell === "fence"
-                                ? "brown"
-                                : cell === "crop"
-                                    ? "lightgreen"
-                                    : "#f0f0f0",
-                        border: "1px solid #ddd",
-                        cursor: "pointer",
-                        transition: "background-color 0.2s",
-                    }}
-                    onMouseDown={() => handleMouseDown(row, col)}
-                    onMouseEnter={() => handleMouseEnter(row, col)}
-                    onDoubleClick={() => handleDoubleClick(row, col)}
-                    aria-label={`Cell ${row}-${col}: ${cell || "empty"}`}
-                />
-            );
-        });
-    }, [grid, handleMouseDown, handleMouseEnter]);
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ marginBottom: "15px", display: "flex", gap: "10px" }}>
-                {["crop", "fence", "delete"].map((m) => (
-                    <button
-                        key={m}
-                        onClick={() => setMode(m)}
-                        style={{
-                            padding: "10px 15px",
-                            backgroundColor: mode === m ? "#555" : "#ddd",
-                            color: "white",
-                            cursor: "pointer",
-                            border: "none",
-                            borderRadius: "5px",
-                            transition: "0.3s",
-                        }}
-                    >
-                        {m.charAt(0).toUpperCase() + m.slice(1)} Mode
-                    </button>
-                ))}
-                <button onClick={resetGrid} style={{ padding: "10px 15px", backgroundColor: "red", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}>Reset</button>
-                <button onClick={goToResultPage} style={{ padding: "10px 15px", backgroundColor: "blue", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}>Go to Result</button>
+        <div
+            style={{
+                display: "flex",
+                alignItems: "start",
+                justifyContent: "center",
+                gap: "30px",
+                height: "100vh",
+            }}
+        >
+            {/* Barn Image on Left (Aligned to Top) */}
+            <div
+                style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    width: "180px",
+                    marginTop: "45px",
+                }}
+            >
+                <img
+                    src={barnImage}
+                    alt="Barn"
+                    style={{
+                        maxWidth: "100%",
+                        height: "auto",
+                        transform: "scale(1.39)",
+                    }}
+                />
+                <div style={{ marginTop: "60px" }}>
+                    <Menu mode={mode} setMode={setMode} resetGrid={resetGrid} />
+                </div>
             </div>
+
+            {/* Grid with Grass Border */}
             <div
                 style={{
                     display: "grid",
-                    gridTemplateRows: `repeat(${rows}, ${cellSize}px)`,
-                    gridTemplateColumns: `repeat(${cols}, ${cellSize}px)`,
-                    border: "2px solid black",
+                    gridTemplateRows: `repeat(${gridWithBorder}, ${cellSize}px)`,
+                    gridTemplateColumns: `repeat(${colsWithBorder}, ${cellSize}px)`,
+                    gap: "0",
+                    backgroundColor: "#222",
+                    padding: "5px",
+                    borderRadius: "8px",
                 }}
                 onMouseUp={handleMouseUp}
             >
-                {renderedGrid}
+                {Array.from({ length: gridWithBorder * colsWithBorder }).map(
+                    (_, index) => {
+                        const row = Math.floor(index / colsWithBorder);
+                        const col = index % colsWithBorder;
+
+                        const isGrass =
+                            row < borderSize ||
+                            row >= rows + borderSize ||
+                            col < borderSize ||
+                            col >= cols + borderSize;
+
+                        return isGrass ? (
+                            <div
+                                key={index}
+                                style={{
+                                    width: `${cellSize}px`,
+                                    height: `${cellSize}px`,
+                                    backgroundImage: `url(${grassTile})`,
+                                    backgroundSize: "cover",
+                                }}
+                            />
+                        ) : (
+                            <Cell
+                                key={index}
+                                type={grid[getIndex(row - borderSize, col - borderSize)]}
+                                onMouseDown={() =>
+                                    handleMouseDown(row - borderSize, col - borderSize)
+                                }
+                                onMouseEnter={() =>
+                                    handleMouseEnter(row - borderSize, col - borderSize)
+                                }
+                            />
+                        );
+                    }
+                )}
             </div>
         </div>
     );
