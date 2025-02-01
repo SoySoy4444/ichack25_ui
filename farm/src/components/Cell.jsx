@@ -24,7 +24,7 @@ const Cell = ({ type, onMouseDown, onMouseEnter }) => {
         height: "30px",
         backgroundImage: `url(${getImageSrc()})`,
         backgroundSize: "cover",
-        border: "none", // Removed border
+        border: "none",
         cursor: "pointer",
       }}
       onMouseDown={onMouseDown}

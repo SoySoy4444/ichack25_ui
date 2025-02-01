@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import Cell from "./Cell";
 import grassTile from "../assets/grass.png";
-import Menu from "./Menu"; // Import the floating menu
+import barnImage from "../assets/barn.png";
+import Menu from "./Menu";
 
 const Grid = ({ rows = 30, cols = 30 }) => {
   const cellSize = 30;
@@ -78,12 +79,37 @@ const Grid = ({ rows = 30, cols = 30 }) => {
     <div
       style={{
         display: "flex",
-        alignItems: "center",
+        alignItems: "start",
         justifyContent: "center",
-        gap: "20px", // Space between grid and menu
+        gap: "30px",
         height: "100vh",
       }}
     >
+      {/* Barn Image on Left (Aligned to Top) */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "flex-start",
+          width: "180px",
+          marginTop: "45px",
+        }}
+      >
+        <img
+          src={barnImage}
+          alt="Barn"
+          style={{
+            maxWidth: "100%",
+            height: "auto",
+            transform: "scale(1.39)",
+          }}
+        />
+        <div style={{ marginTop: "60px" }}>
+          <Menu mode={mode} setMode={setMode} resetGrid={resetGrid} />
+        </div>
+      </div>
+
       {/* Grid with Grass Border */}
       <div
         style={{
@@ -91,7 +117,7 @@ const Grid = ({ rows = 30, cols = 30 }) => {
           gridTemplateRows: `repeat(${gridWithBorder}, ${cellSize}px)`,
           gridTemplateColumns: `repeat(${colsWithBorder}, ${cellSize}px)`,
           gap: "0",
-          backgroundColor: "#222", // Dark background for better contrast
+          backgroundColor: "#222",
           padding: "5px",
           borderRadius: "8px",
         }}
@@ -102,7 +128,6 @@ const Grid = ({ rows = 30, cols = 30 }) => {
             const row = Math.floor(index / colsWithBorder);
             const col = index % colsWithBorder;
 
-            // Check if it's a grass tile (border area)
             const isGrass =
               row < borderSize ||
               row >= rows + borderSize ||
@@ -134,9 +159,6 @@ const Grid = ({ rows = 30, cols = 30 }) => {
           }
         )}
       </div>
-
-      {/* Floating Menu on Right Side */}
-      <Menu mode={mode} setMode={setMode} resetGrid={resetGrid} />
     </div>
   );
 };
