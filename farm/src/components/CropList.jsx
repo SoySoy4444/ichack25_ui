@@ -18,27 +18,32 @@ import {
 import "@coreui/coreui/dist/css/coreui.min.css";
 import CropTile from "./CropTile";
 
-const CropList = ({ availableCrops, crops, setCrops, onHandleSelected, onHandleHarvest }) => {
+const CropList = ({
+  availableCrops,
+  crops,
+  setCrops,
+  onHandleSelected,
+  onHandleHarvest,
+}) => {
   console.log("Crops in list", crops);
   const [search, setSearch] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedCrop, setSelectedCrop] = useState(null);
   const [proportion, setProportion] = useState(50);
-  const [availableProportion, setAvailableProportion] = useState(100);
 
   const handleOpenModal = (crop) => {
-    setAvailableProportion(
-      crops.length > 0
-        ? 100 - crops.reduce((acc, crop) => acc + crop.proportion, 0)
-        : 100
-    );
     setSelectedCrop(crop);
     setModalVisible(true);
   };
 
   const handleConfirmSelection = () => {
     if (selectedCrop) {
-      const newCrop = { title: selectedCrop, proportion: proportion, growth: 0, yieldAmount: 0 };
+      const newCrop = {
+        title: selectedCrop,
+        proportion: proportion,
+        growth: 0,
+        yieldAmount: 0,
+      };
       const newCrops = [...crops, newCrop];
       setCrops(newCrops);
       onHandleSelected(newCrops);
@@ -114,9 +119,18 @@ const CropList = ({ availableCrops, crops, setCrops, onHandleSelected, onHandleH
             >
               Selected Crops
             </CCardTitle>
-            <CRow className="g-3">
+            <CRow
+              className="g-3 d-flex flex-wrap"
+              style={{ flexDirection: "row" }}
+            >
               {crops.map((crop, index) => (
-                <CCol key={index} xs={12} sm={6} md={4}>
+                <CCol
+                  key={index}
+                  xs={12}
+                  md={6}
+                  lg={4}
+                  className="d-flex justify-content-center"
+                >
                   <CropTile {...crop} onHandleHarvest={onHandleHarvest} />
                 </CCol>
               ))}
@@ -141,7 +155,7 @@ const CropList = ({ availableCrops, crops, setCrops, onHandleSelected, onHandleH
           <CFormRange
             id="crop-proportion"
             min={0}
-            max={availableProportion}
+            max={100 - crops.reduce((acc, crop) => acc + crop.proportion, 0)}
             value={proportion}
             onChange={(e) => setProportion(Number(e.target.value))}
           />

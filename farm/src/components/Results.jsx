@@ -18,7 +18,7 @@ const Results = ({ route }) => {
                     <tbody>
                         {Object.entries(results).map(([key, value]) => (
                             <tr key={key}>
-                                <td style={styles.label}>{`Yield for ${key}`}</td>
+                                <td style={styles.label}>{`Yield for ${key}%`}</td>
                                 <td style={styles.value}>{value}</td>
                             </tr>
                         ))}
