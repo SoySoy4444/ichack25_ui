@@ -67,7 +67,7 @@ const CropTile = ({ title, yieldAmount, growth, proportion, onHandleHarvest }) =
           </CCardTitle>
 
           <CCardText style={{ fontSize: "0.95rem", lineHeight: "1.5" }}>
-            <span style={{ fontWeight: "bold", color: "#28a745" }}>Yield:</span> {yieldAmount} kg<br />
+            <span style={{ fontWeight: "bold", color: "#28a745" }}>Yield:</span> {yieldAmount} <br />
             <span style={{ fontWeight: "bold", color: "#007bff" }}>Growth:</span> {growth}%<br />
             <span style={{ fontWeight: "bold", color: "#dc3545" }}>Farm Proportion:</span> {proportion}%
           </CCardText>

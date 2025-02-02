@@ -38,7 +38,7 @@ const CropList = ({ availableCrops, crops, setCrops, onHandleSelected, onHandleH
 
   const handleConfirmSelection = () => {
     if (selectedCrop) {
-      const newCrop = { title: selectedCrop, proportion };
+      const newCrop = { title: selectedCrop, proportion: proportion, growth: 0, yieldAmount: 0 };
       const newCrops = [...crops, newCrop];
       setCrops(newCrops);
       onHandleSelected(newCrops);

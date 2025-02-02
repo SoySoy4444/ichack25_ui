@@ -41,7 +41,7 @@ const AppPage = () => {
     var cropData = {};
     crops.forEach((crop) => {
       cropData[crop.title] = {
-        yield: crop.yieldAmount ? crop.yieldAmount : 0,
+        yieldAmount: crop.yieldAmount ? crop.yieldAmount : 0,
         proportion: crop.proportion ? crop.proportion : 0,
         growth: crop.growth ? crop.growth : 0
       };
@@ -61,10 +61,11 @@ const AppPage = () => {
       console.log("API Response:", updatedData);
       setCurrMonth((currMonth + 1) % 12);
 
-      const newCrops = Object.keys(updatedData.cropData).map((crop) => ({
+      const newCrops = Object.keys(updatedData).map((crop) => ({
         title: crop,
-        ...updatedData.cropData[crop],
+        ...updatedData[crop]
       }));
+      console.log("Newc", newCrops)
       setCrops(newCrops);
     } catch (error) {
       console.error("Error fetching simulation data:", error);
