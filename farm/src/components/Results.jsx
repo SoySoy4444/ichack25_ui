@@ -1,23 +1,14 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
-const Results = () => {
+const Results = ({ route }) => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    
+    const results = JSON.parse(queryParams.get("results") || "[]"); // Parse JSON
     
     // Example statistics (these will be replaced by actual simulation data)
-    const statistics = {
-        averageYield: "25 tons",
-        highestYield: "40 tons",
-        lowestYield: "10 tons",
-        setupCost: "$500,000",
-        totalFarms: 100,
-    };
-
-    const formatKey = (key) => {
-        var formattedKey = key.replace(/([A-Z])/g, " $1");
-        return formattedKey = formattedKey.charAt(0).toUpperCase() + formattedKey.slice(1);
-    };
-
     return (
         <div style={styles.container}>
             <h1 style={styles.heading}>Simulation Results</h1>
@@ -25,9 +16,9 @@ const Results = () => {
             <div style={styles.statsContainer}>
                 <table style={styles.table}>
                     <tbody>
-                        {Object.entries(statistics).map(([key, value]) => (
+                        {Object.entries(results).map(([key, value]) => (
                             <tr key={key}>
-                                <td style={styles.label}>{formatKey(key)}</td>
+                                <td style={styles.label}>{`Yield for ${key}`}</td>
                                 <td style={styles.value}>{value}</td>
                             </tr>
                         ))}
